@@ -207,6 +207,11 @@ delprog(Prog *p, char *msg)
 
 	tellsomeone(p, msg);	/* call before being removed from prog list */
 
+    if (up->proc_user_cleaner) {     //{}
+        up->proc_user_cleaner(up);   //{}
+        up->proc_user_cleaner = NULL;
+    }
+
 	o = p->osenv;
 	release();
 	closepgrp(o->pgrp);

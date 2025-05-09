@@ -14,6 +14,8 @@ EMUDIRS=\
 	libmath\
 	utils/iyacc\
 	limbo\
+	utils/data2c\
+	utils/ndate\
 	libinterp\
 	libkeyring\
 	libdraw\
@@ -23,8 +25,6 @@ EMUDIRS=\
 	libmemdraw\
 	libmemlayer\
 	libdynld\
-	utils/data2c\
-	utils/ndate\
 	emu\
 
 KERNEL_DIRS=\
@@ -37,6 +37,7 @@ KERNEL_DIRS=\
 <mkconfig
 
 DIRS=\
+        libgraph\
 	$EMUDIRS\
 #	appl\
 

@@ -1,0 +1,433 @@
+<../mkconfig
+
+TARGTYPE=${SYSTARG:os%=Inferno%}		# maps 'os' into 'Inferno'
+
+LIB=libgraph.a
+OFILES=\
+    UriCommon.$O\
+    UriCompare.$O\
+    UriEscape.$O\
+    UriFile.$O\
+    UriIp4.$O\
+    UriIp4Base.$O\
+    UriMemory.$O\
+    UriNormalize.$O\
+    UriNormalizeBase.$O\
+    UriParse.$O\
+    UriParseBase.$O\
+    UriQuery.$O\
+    UriRecompose.$O\
+    UriResolve.$O\
+    UriShorten.$O\
+    \
+    xmlparse.$O\
+    xmlrole.$O\
+    xmltok.$O\
+    xmltok_impl.$O\
+    xmltok_ns.$O\
+    \
+    adler32.$O\
+    compress.$O\
+    crc32.$O\
+    deflate.$O\
+    gzclose.$O\
+    gzlib.$O\
+    gzread.$O\
+    gzwrite.$O\
+    inflate.$O\
+    infback.$O\
+    inftrees.$O\
+    inffast.$O\
+    trees.$O\
+    uncompr.$O\
+    zutil.$O\
+    \
+    png.$O\
+    pngerror.$O\
+    pngget.$O\
+    pngmem.$O\
+    pngpread.$O\
+    pngread.$O\
+    pngrio.$O\
+    pngrtran.$O\
+    pngrutil.$O\
+    pngset.$O\
+    pngtest.$O\
+    pngtrans.$O\
+    pngwio.$O\
+    pngwrite.$O\
+    pngwtran.$O\
+    pngwutil.$O\
+    \
+    jcapimin.$O\
+    jcapistd.$O\
+    jccoefct.$O\
+    jccolor.$O\
+    jcdctmgr.$O\
+    jchuff.$O\
+    jcinit.$O\
+    jcmainct.$O\
+    jcmarker.$O\
+    jcmaster.$O\
+    jcomapi.$O\
+    jcparam.$O\
+    jcphuff.$O\
+    jcprepct.$O\
+    jcsample.$O\
+    jctrans.$O\
+    jdapimin.$O\
+    jdapistd.$O\
+    jdatadst.$O\
+    jdatasrc.$O\
+    jdcoefct.$O\
+    jdcolor.$O\
+    jddctmgr.$O\
+    jdhuff.$O\
+    jdinput.$O\
+    jdmainct.$O\
+    jdmarker.$O\
+    jdmaster.$O\
+    jdmerge.$O\
+    jdphuff.$O\
+    jdpostct.$O\
+    jdsample.$O\
+    jdtrans.$O\
+    jerror.$O\
+    jfdctflt.$O\
+    jfdctfst.$O\
+    jfdctint.$O\
+    jidctflt.$O\
+    jidctfst.$O\
+    jidctint.$O\
+    jidctred.$O\
+    jquant1.$O\
+    jquant2.$O\
+    jutils.$O\
+    jmemmgr.$O\
+    \
+    jmemnobs.$O\
+    \
+    svg.$O\
+    svg_ascii.$O\
+    svg_attribute.$O\
+    svg_clip_path.$O\
+    svg_color.$O\
+    svg_container.$O\
+    svg_css_style.$O\
+    svg_dom.$O\
+    svg_element.$O\
+    svg_element_ref.$O\
+    svg_gradient.$O\
+    svg_group.$O\
+    svg_hash.$O\
+    svg_image.$O\
+    svg_length.$O\
+    svg_marker.$O\
+    svg_mask.$O\
+    svg_paint.$O\
+    svg_parser.$O\
+    svg_parser_expat.$O\
+    svg_path.$O\
+    svg_pattern.$O\
+    svg_render_engine.$O\
+    svg_resource.$O\
+    svg_shapes.$O\
+    svg_str.$O\
+    svg_style.$O\
+    svg_svg_group.$O\
+    svg_symbol.$O\
+    svg_text.$O\
+    svg_trace.$O\
+    svg_transform.$O\
+    svg_uri.$O\
+    svg_uri_reference.$O\
+    svg_use.$O\
+    svg_view_box.$O\
+    \
+    svg_cairo.$O\
+    svg_cairo_sprintf_alloc.$O\
+    svg_cairo_state.$O\
+    \
+    svg_ft.$O\
+    \
+    autofit.$O\
+    truetype.$O\
+    \
+    ftinit.$O\
+    ftbase.$O\
+    ftmm.$O\
+    ftsynth.$O\
+    ftbitmap.$O\
+    ftsystem_os.$O\
+    \
+    hb-aat-layout.$O\
+    hb-aat-map.$O\
+    hb-blob.$O\
+    hb-buffer-serialize.$O\
+    hb-buffer-verify.$O\
+    hb-buffer.$O\
+    hb-common.$O\
+    hb-draw.$O\
+    hb-paint.$O\
+    hb-paint-extents.$O\
+    hb-face.$O\
+    hb-face-builder.$O\
+    hb-fallback-shape.$O\
+    hb-font.$O\
+    hb-map.$O\
+    hb-number.$O\
+    hb-ot-cff1-table.$O\
+    hb-ot-cff2-table.$O\
+    hb-ot-color.$O\
+    hb-ot-face.$O\
+    hb-ot-font.$O\
+    hb-outline.$O\
+    VARC.$O\
+    hb-ot-layout.$O\
+    hb-ot-map.$O\
+    hb-ot-math.$O\
+    hb-ot-meta.$O\
+    hb-ot-metrics.$O\
+    hb-ot-name.$O\
+    hb-ot-shaper-arabic.$O\
+    hb-ot-shaper-default.$O\
+    hb-ot-shaper-hangul.$O\
+    hb-ot-shaper-hebrew.$O\
+    hb-ot-shaper-indic-table.$O\
+    hb-ot-shaper-indic.$O\
+    hb-ot-shaper-khmer.$O\
+    hb-ot-shaper-myanmar.$O\
+    hb-ot-shaper-syllabic.$O\
+    hb-ot-shaper-thai.$O\
+    hb-ot-shaper-use.$O\
+    hb-ot-shaper-vowel-constraints.$O\
+    hb-ot-shape-fallback.$O\
+    hb-ot-shape-normalize.$O\
+    hb-ot-shape.$O\
+    hb-ot-tag.$O\
+    hb-ot-var.$O\
+    hb-set.$O\
+    hb-shape-plan.$O\
+    hb-shape.$O\
+    hb-shaper.$O\
+    hb-static.$O\
+    hb-style.$O\
+    hb-ucd.$O\
+    hb-unicode.$O\
+    \
+    pixman.$O\
+    pixman-access.$O\
+    pixman-access-accessors.$O\
+    pixman-arm.$O\
+    pixman-bits-image.$O\
+    pixman-combine32.$O\
+    pixman-combine-float.$O\
+    pixman-conical-gradient.$O\
+    pixman-edge.$O\
+    pixman-edge-accessors.$O\
+    pixman-fast-path.$O\
+    pixman-filter.$O\
+    pixman-glyph.$O\
+    pixman-general.$O\
+    pixman-gradient-walker.$O\
+    pixman-image.$O\
+    pixman-implementation.$O\
+    pixman-linear-gradient.$O\
+    pixman-matrix.$O\
+    pixman-mips.$O\
+    pixman-noop.$O\
+    pixman-ppc.$O\
+    pixman-radial-gradient.$O\
+    pixman-region16.$O\
+    pixman-region32.$O\
+    pixman-riscv.$O\
+    pixman-solid-fill.$O\
+    pixman-timer.$O\
+    pixman-trap.$O\
+    pixman-utils.$O\
+    pixman-x86.$O\
+    \
+    cairo-analysis-surface.$O\
+    cairo-arc.$O\
+    cairo-array.$O\
+    cairo-atomic.$O\
+    cairo-base64-stream.$O\
+    cairo-base85-stream.$O\
+    cairo-bentley-ottmann-rectangular.$O\
+    cairo-bentley-ottmann-rectilinear.$O\
+    cairo-bentley-ottmann.$O\
+    cairo-botor-scan-converter.$O\
+    cairo-boxes-intersect.$O\
+    cairo-boxes.$O\
+    cairo-cache.$O\
+    cairo-clip-boxes.$O\
+    cairo-clip-polygon.$O\
+    cairo-clip-region.$O\
+    cairo-clip-surface.$O\
+    cairo-clip-tor-scan-converter.$O\
+    cairo-clip.$O\
+    cairo-color.$O\
+    cairo-composite-rectangles.$O\
+    cairo-compositor.$O\
+    cairo-contour.$O\
+    cairo-damage.$O\
+    cairo-debug.$O\
+    cairo-default-context.$O\
+    cairo-device.$O\
+    cairo-error.$O\
+    cairo-fallback-compositor.$O\
+    cairo-fixed.$O\
+    cairo-font-face-twin-data.$O\
+    cairo-font-face-twin.$O\
+    cairo-font-face.$O\
+    cairo-font-options.$O\
+    cairo-freed-pool.$O\
+    cairo-freelist.$O\
+    cairo-gstate.$O\
+    cairo-hash.$O\
+    cairo-hull.$O\
+    cairo-image-compositor.$O\
+    cairo-image-info.$O\
+    cairo-image-source.$O\
+    cairo-image-surface.$O\
+    cairo-line.$O\
+    cairo-lzw.$O\
+    cairo-mask-compositor.$O\
+    cairo-matrix.$O\
+    cairo-mempool.$O\
+    cairo-mesh-pattern-rasterizer.$O\
+    cairo-misc.$O\
+    cairo-mono-scan-converter.$O\
+    cairo-mutex.$O\
+    cairo-no-compositor.$O\
+    cairo-observer.$O\
+    cairo-output-stream.$O\
+    cairo-paginated-surface.$O\
+    cairo-path-bounds.$O\
+    cairo-path-fill.$O\
+    cairo-path-fixed.$O\
+    cairo-path-in-fill.$O\
+    cairo-path-stroke-boxes.$O\
+    cairo-path-stroke-polygon.$O\
+    cairo-path-stroke-traps.$O\
+    cairo-path-stroke-tristrip.$O\
+    cairo-path-stroke.$O\
+    cairo-path.$O\
+    cairo-pattern.$O\
+    cairo-pen.$O\
+    cairo-polygon-intersect.$O\
+    cairo-polygon-reduce.$O\
+    cairo-polygon.$O\
+    cairo-raster-source-pattern.$O\
+    cairo-recording-surface.$O\
+    cairo-rectangle.$O\
+    cairo-rectangular-scan-converter.$O\
+    cairo-region.$O\
+    cairo-rtree.$O\
+    cairo-scaled-font.$O\
+    cairo-shape-mask-compositor.$O\
+    cairo-slope.$O\
+    cairo-spans-compositor.$O\
+    cairo-spans.$O\
+    cairo-spline.$O\
+    cairo-stroke-dash.$O\
+    cairo-stroke-style.$O\
+    cairo-surface-clipper.$O\
+    cairo-surface-fallback.$O\
+    cairo-surface-observer.$O\
+    cairo-surface-offset.$O\
+    cairo-surface-snapshot.$O\
+    cairo-surface-subsurface.$O\
+    cairo-surface-wrapper.$O\
+    cairo-surface.$O\
+    cairo-time.$O\
+    cairo-tor-scan-converter.$O\
+    cairo-tor22-scan-converter.$O\
+    cairo-toy-font-face.$O\
+    cairo-traps-compositor.$O\
+    cairo-traps.$O\
+    cairo-tristrip.$O\
+    cairo-unicode.$O\
+    cairo-user-font.$O\
+    cairo-version.$O\
+    cairo-wideint.$O\
+    cairo.$O\
+    cairo-cff-subset.$O\
+    cairo-scaled-font-subsets.$O\
+    cairo-truetype-subset.$O\
+    cairo-type1-fallback.$O\
+    cairo-type1-glyph-names.$O\
+    cairo-type1-subset.$O\
+    cairo-type3-glyph-surface.$O\
+    cairo-pdf-operators.$O\
+    cairo-pdf-shading.$O\
+    cairo-tag-attributes.$O\
+    cairo-tag-stack.$O\
+    cairo-deflate-stream.$O\
+    cairo-png.$O\
+    cairo-svg-glyph-render.$O\
+    \
+    cairo-ft-font.$O\
+    cairo-svg-glyph-render.$O\
+    \
+    strndup.$O\
+
+
+
+HFILES=\
+
+	
+<$ROOT/mkfiles/mksyslib-$SHELLTYPE
+
+
+%.$O:	libharfbuzz/src/%.cc
+	$CC $CFLAGS -o libharfbuzz/src/$target libharfbuzz/src/$stem.cc
+
+%.$O:	libharfbuzz/src/OT/Var/VARC/%.cc
+	$CC $CFLAGS -o libharfbuzz/src/OT/Var/VARC/$target libharfbuzz/src/OT/Var/VARC/$stem.cc
+
+%.$O:	pixman/pixman/%.c
+	$CC $CFLAGS -o pixman/pixman/$target pixman/pixman/$stem.c
+
+%.$O:	cairo/src/%.c
+	$CC $CFLAGS -o cairo/src/$target cairo/src/$stem.c
+
+%.$O:	libsvg/libsvg/src/%.c
+	$CC $CFLAGS -o libsvg/libsvg/src/$target libsvg/libsvg/src/$stem.c
+
+%.$O:	liburiparser/src/%.c
+	$CC $CFLAGS -o liburiparser/src/$target liburiparser/src/$stem.c
+
+%.$O:	libexpat/lib/%.c
+	$CC $CFLAGS -o libexpat/lib/$target libexpat/lib/$stem.c
+
+%.$O:	zlib/%.c
+	$CC $CFLAGS -o zlib/$target zlib/$stem.c
+
+%.$O:	libpng/%.c
+	$CC $CFLAGS -o libpng/$target libpng/$stem.c
+
+%.$O:	libjpeg/%.c
+	$CC $CFLAGS -o libjpeg/$target libjpeg/$stem.c
+
+%.$O:	libsvg_cairo/src/%.c
+	$CC $CFLAGS -o libsvg_cairo/src/$target libsvg_cairo/src/$stem.c
+
+%.$O:	freetype/src/svg/%.c
+	$CC $CFLAGS -o freetype/src/svg/$target freetype/src/svg/$stem.c
+
+%.$O:	freetype/src/autofit/%.c
+	$CC $CFLAGS -o freetype/src/autofit/$target freetype/src/autofit/$stem.c
+
+%.$O:	freetype/src/truetype/%.c
+	$CC $CFLAGS -o freetype/src/truetype/$target freetype/src/truetype/$stem.c
+
+%.$O:	freetype/src/base/%.c
+	$CC $CFLAGS -o freetype/src/base/$target freetype/src/base/$stem.c
+
+%.$O:	freetype/builds/windows/%.c
+	$CC $CFLAGS -o freetype/builds/windows/$target freetype/builds/windows/$stem.c
+
+%.$O:	cairo/util/cairo-missing/%.c
+	$CC $CFLAGS -o cairo/util/cairo-missing/$target cairo/util/cairo-missing/$stem.c
+

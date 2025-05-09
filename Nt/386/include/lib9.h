@@ -1,3 +1,6 @@
+#ifndef _LIB9_H_
+#define _LIB9_H_
+
 #define _POSIX_SOURCE
 #include <stdlib.h>
 #include <stdarg.h>
@@ -63,7 +66,10 @@ typedef signed char	schar;
 typedef unsigned short	ushort;
 typedef unsigned int Rune;
 typedef __int64		vlong;
-typedef unsigned __int64		uvlong;
+
+//{} typedef unsigned __int64		uvlong;
+#define uvlong unsigned __int64
+
 typedef unsigned int u32int;
 typedef uvlong u64int;
 
@@ -494,3 +500,5 @@ extern char *argv0;
 
 extern	void	setbinmode(void);
 extern	void*	sbrk(int);
+
+#endif // _LIB9_H_

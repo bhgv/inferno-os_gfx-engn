@@ -59,6 +59,7 @@ static	ulong	*data;
 extern	DWORD	PlatformId;
 char*	gkscanid = "emu_win32vk";
 
+#if 0 //{}
 int WINAPI
 WinMain(HINSTANCE winst, HINSTANCE wprevinst, LPSTR cmdline, int wcmdshow)
 {
@@ -72,6 +73,7 @@ WinMain(HINSTANCE winst, HINSTANCE wprevinst, LPSTR cmdline, int wcmdshow)
 	main(__argc, __argv);
 	return 0;
 }
+#endif //{}
 
 static void
 dprint(char *fmt, ...)

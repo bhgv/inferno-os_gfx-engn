@@ -46,6 +46,12 @@ typedef struct Walkqid	Walkqid;
 
 #include "pool.h"
 
+#include "interp.h"
+
+
+#include <cairo.h>  //{}
+
+
 typedef int    Devgen(Chan*, char*, Dirtab*, int, int, Dir*);
 
 enum
@@ -374,14 +380,74 @@ struct Osenv
 	void	*ui;		/* User info for NT */
 };
 
+
+#ifndef Unknown  //{}
+#define Unknown 0xdeadbabe
+#endif
+
 enum
 {
-	Unknown	= 0xdeadbabe,
+//{}	Unknown	= 0xdeadbabe,
 	IdleGC	= 0x16,
 	Interp	= 0x17,
 	BusyGC	= 0x18,
 	Moribund
 };
+
+
+enum {                           //{}
+	GR_EL_NONE = 0,
+	GR_EL_SVG,
+	GR_EL_PNG,
+	GR_EL_SHAPE,
+	GR_EL_CANVAS,
+};
+#define GR_EL_MASK (1 << 15)
+
+enum {
+	GR_EL_WAIT_TO_RENDER = 0b00001,
+	GR_EL_RENDERED       = 0b00010,
+};
+
+
+typedef struct graphic_el graphic_el; //{}
+struct graphic_el {                   //{}
+	ulong qid;
+	int   id;
+
+	uint flags;
+
+	Prog *prog;
+
+	int type;
+	
+	cairo_surface_t *sfc;
+	
+	double x, y;
+	double w, h;
+	double angle;
+	double sx,sy;
+
+//	char *svg;
+
+	float line_width;
+	float line_r, line_g, line_b, line_a;
+	float fill_r, fill_g, fill_b, fill_a;
+
+	double x_min, y_min, x_max, y_max;
+
+	char *data;
+	int   data_len;
+	
+	graphic_el* canvas;
+
+	graphic_el* masked;
+
+	graphic_el* next;
+	
+	graphic_el** root;
+};
+
 
 struct Proc
 {
@@ -415,6 +481,13 @@ struct Proc
 	Proc	*kid;
 	void	*kidsp;
 	void	*os;		/* host os specific data */
+
+    void (*proc_user_cleaner)(Proc *); //{}
+
+	graphic_el *groot;                 //{}
+	int         groot_len;
+
+	graphic_el *free_levels;           //{}
 };
 
 #define poperror()	up->nerr--

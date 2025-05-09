@@ -1,8 +1,17 @@
+
+#ifndef _INTERP_H_
+#define _INTERP_H_
+
+
 typedef uchar		BYTE;		/* 8  bits */
-typedef int		WORD;		/* 32 bits */
-typedef unsigned int	UWORD;		/* 32 bits */
-typedef vlong		LONG;		/* 64 bits */
-typedef uvlong		ULONG;		/* 64 bits */
+//{} typedef int		WORD;		/* 32 bits */
+//{} typedef unsigned int	UWORD;		/* 32 bits */
+#define WORD  int		/* 32 bits */
+#define UWORD unsigned int		/* 32 bits */
+//{} typedef vlong		LONG;		/* 64 bits */
+//{} typedef uvlong		ULONG;		/* 64 bits */
+#define LONG  vlong		/* 64 bits */
+#define ULONG uvlong		/* 64 bits */
 typedef double		REAL;		/* 64 double IEEE754 */
 typedef short		SHORT;		/* 16 bits */
 typedef float		SREAL;		/* 32 float IEEE754 */
@@ -538,3 +547,8 @@ extern	void		readimagemodinit(void);
 
 #pragma	varargck	type	"D"	Inst*
 #pragma varargck argpos errorf 1
+
+
+
+#endif //_INTERP_H_
+

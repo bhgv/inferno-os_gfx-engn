@@ -36,6 +36,13 @@ char *hosttype = "Nt";
 char *cputype = "386";
 void	(*coherence)(void) = nofence;
 
+
+Proc* getup() //{}
+{
+	return up;
+}
+
+
 static void
 pfree(Proc *p)
 {

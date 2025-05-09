@@ -27,11 +27,29 @@ CFLAGS=		-c\
 		-D_WIN32_WINNT=0x0600\
 		-I$ROOT/Nt/386/include\
 		-I$ROOT/include\
+		-I$ROOT/libgraph/cairo/src\
+		-I$ROOT/libgraph\cairo\util\cairo-missing\
+		-I$ROOT/libgraph/pixman/pixman\
+		-I$ROOT/libgraph/freetype/include\
+		-I$ROOT/libgraph/freetype/src/svg\
+		-I$ROOT/libgraph/freetype/src/truetype\
+		-I$ROOT/libgraph/freetype/src/autofit\
+		-I$ROOT/libgraph/libsvg/libsvg/include\
+		-I$ROOT/libgraph/libsvg/libsvg/src\
+		-I$ROOT/libgraph/libpng\
+		-I$ROOT/libgraph/libjpeg\
+		-I$ROOT/libgraph/libexpat\
+		-I$ROOT/libgraph/libexpat/lib\
+		-I$ROOT/libgraph/liburiparser/include\
+		-I$ROOT/libgraph/libsvg_cairo/src\
+		-I$ROOT/libgraph/libharfbuzz/util\
+		-I$ROOT/libgraph/libharfbuzz/src\
+		-I$ROOT/libgraph/zlib\
 		$XCFLAGS\
 
 ANSICPP=
 LD=		link
-LDFLAGS=	$LDEBUG -nologo -incremental:no -map
+LDFLAGS=	$LDEBUG -nologo -incremental:no -debug -Zi -map
 # LDFLAGS=	-nologo -incremental:no -debug
 
 SYSLIBS=	binmode.obj
