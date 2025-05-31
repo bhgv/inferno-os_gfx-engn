@@ -2,22 +2,48 @@ E: module
 {
 	PATH: con "$E";
 
-
-	GrOp : adt {
-		fill : array of ref Level;
-		svg  : string;
-	
-#		newSVG: fn(svg : string);
-#		getSVG: fn() : string;
-
-#		clean : fn();
+	XY_coord : adt {
+		x, y : real;
 	};
+
+	Arc_coord : adt {
+		center : XY_coord;
+		radius : real;
+		ang_from : real;
+		ang_to   : real;
+	};
+
+	GraphOp : adt {
+		op : string;
+	
+		pick
+		{
+			MOVE_TO  => coord: XY_coord;
+			LINE_TO  => coord: XY_coord;
+			CURVE_TO => coord: (XY_coord, XY_coord, XY_coord);
+			ARC_CW   => coord: Arc_coord;
+			ARC_CCW  => coord: Arc_coord;
+			CLOSE_PATH => coord: int;
+		}
+	};
+
+
+	ShapeEvent : adt {
+		shape : ref Shape;
+
+		pick
+		{
+			MOUSE  => data  : (string, XY_coord, XY_coord);
+			TOUCH  => data  : array of XY_coord;
+		}
+	};
+
 
 	
 	Level : adt {
-#		note: string;
+		note: string;
 
-		graphics : GrOp;
+#		graphics : GrOp;
 
 		new:	fn(): ref Level;
 
@@ -32,6 +58,17 @@ E: module
 
 	Shape : adt {
 		id : int;
+
+		graph_ops : array of ref GraphOp;
+
+		exec_cb_path : string;
+
+		sub_canvas : array of ref Shape;
+
+		mask_canvas : array of ref Shape;
+
+		parent : array of ref Shape;
+
 
 		LineWidth: fn(this: self ref Shape, w: real)                            : int;
 		LineColor: fn(this: self ref Shape, r: real, g: real, b: real, a: real) : int;
@@ -65,8 +102,22 @@ E: module
 		getDrawZ:   fn(this: self ref Shape, n: int)			 : (ref Shape, int);
 		rmDrawZ:	fn(this: self ref Shape, n: int)			 : (ref Shape, int);
 
+		getSubCanvasLen:	fn(this: self ref Shape) : int;
+		getSubCanvasItm:	fn(this: self ref Shape, i: int) : ref Shape;
+
+		getMaskedCanvasLen:	fn(this: self ref Shape) : int;
+		getMaskedCanvasItm:	fn(this: self ref Shape, i: int) : ref Shape;
+
+		getParent:      fn(this: self ref Shape) : ref Shape;
+
+		updGraph:		fn(this: self ref Shape);
+		undoGraph:		fn(this: self ref Shape);
 
 		encToChunk:	fn(this: self ref Shape)			 : array of byte;
+
+		setExecCbPath: fn(this: self ref Shape, new_path: string): (string, int);
+		setExecCbChan: fn(this: self ref Shape, c: chan of ref ShapeEvent);
+		getExecCbChan: fn(this: self ref Shape): chan of ref ShapeEvent;
 
 	};
 
@@ -82,24 +133,10 @@ E: module
 
 	newCanvas:   fn()                 : ref Shape;
 
-
-#	shapeLineWidth: fn(id: int, w: real);
-#	shapeLineColor: fn(id: int, r: real, g: real, b: real, a: real);
-#	shapeFillColor: fn(id: int, r: real, g: real, b: real, a: real);
-
-#	shapeMoveTo:    fn(id: int, x: real, y: real);
-#	shapeLineTo:    fn(id: int, x: real, y: real);
-
 	moveTo:     fn(id: int, x: int, y: int);
-
-#	setToPos:   fn(id: int, n: int)  : int;
-#	insToPos:   fn(id: int, n: int)  : int;
-#	getFromPos: fn(n: int)           : int;
-#	rmFromPos:  fn(n: int)           : int;
 
 	destroyObj: fn(id: int);
 
-#	getLevelsTopPos: fn()       : int;
 
 	getLevelsList:   fn()            : array of int;
 

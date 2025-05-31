@@ -425,7 +425,7 @@ iprint(char *fmt, ...)
 }
 
 void
-_assert(char *fmt)
+_INTR_assert(char *fmt)
 {
 	panic("assert failed: %s", fmt);
 }

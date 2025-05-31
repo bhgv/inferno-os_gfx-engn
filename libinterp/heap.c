@@ -216,7 +216,7 @@ destroy(void *v)
 	Heap *h;
 	Type *t;
 
-	if(v == H)
+	if(v == H || v == nil || v == NULL)
 		return;
 
 	h = D2H(v);

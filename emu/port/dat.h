@@ -429,6 +429,8 @@ struct graphic_el {                   //{}
 	double sx,sy;
 
 //	char *svg;
+	char* exec_mod;
+	Channel* exec_mod_chan;
 
 	float line_width;
 	float line_r, line_g, line_b, line_a;
@@ -438,6 +440,8 @@ struct graphic_el {                   //{}
 
 	char *data;
 	int   data_len;
+
+	void* shp;
 	
 	graphic_el* canvas;
 

@@ -1,25 +1,104 @@
-typedef struct E_GrOp E_GrOp;
+typedef struct E_XY_coord E_XY_coord;
+typedef struct E_Arc_coord E_Arc_coord;
+typedef struct E_GraphOp E_GraphOp;
+typedef struct E_ShapeEvent E_ShapeEvent;
 typedef struct E_Level E_Level;
 typedef struct E_Shape E_Shape;
-struct E_GrOp
+struct E_XY_coord
 {
-	Array*	fill;
-	String*	svg;
+	REAL	x;
+	REAL	y;
 };
-#define E_GrOp_size 8
-#define E_GrOp_map {0xc0,}
+#define E_XY_coord_size 16
+#define E_XY_coord_map {0}
+struct E_Arc_coord
+{
+	E_XY_coord	center;
+	REAL	radius;
+	REAL	ang_from;
+	REAL	ang_to;
+};
+#define E_Arc_coord_size 40
+#define E_Arc_coord_map {0}
+#define E_GraphOp_MOVE_TO 0
+#define E_GraphOp_LINE_TO 1
+#define E_GraphOp_CURVE_TO 2
+#define E_GraphOp_ARC_CW 3
+#define E_GraphOp_ARC_CCW 4
+#define E_GraphOp_CLOSE_PATH 5
+struct E_GraphOp
+{
+	int	pick;
+	String*	op;
+	union{
+		struct{
+			E_XY_coord	coord;
+		} MOVE_TO;
+		struct{
+			E_XY_coord	coord;
+		} LINE_TO;
+		struct{
+			struct{ E_XY_coord t0; E_XY_coord t1; E_XY_coord t2; }	coord;
+		} CURVE_TO;
+		struct{
+			E_Arc_coord	coord;
+		} ARC_CW;
+		struct{
+			E_Arc_coord	coord;
+		} ARC_CCW;
+		struct{
+			WORD	coord;
+		} CLOSE_PATH;
+	} u;
+};
+#define E_GraphOp_MOVE_TO_size 24
+#define E_GraphOp_MOVE_TO_map {0x40,}
+#define E_GraphOp_LINE_TO_size 24
+#define E_GraphOp_LINE_TO_map {0x40,}
+#define E_GraphOp_CURVE_TO_size 56
+#define E_GraphOp_CURVE_TO_map {0x40,}
+#define E_GraphOp_ARC_CW_size 48
+#define E_GraphOp_ARC_CW_map {0x40,}
+#define E_GraphOp_ARC_CCW_size 48
+#define E_GraphOp_ARC_CCW_map {0x40,}
+#define E_GraphOp_CLOSE_PATH_size 12
+#define E_GraphOp_CLOSE_PATH_map {0x40,}
+#define E_ShapeEvent_MOUSE 0
+#define E_ShapeEvent_TOUCH 1
+struct E_ShapeEvent
+{
+	int	pick;
+	E_Shape*	shape;
+	union{
+		struct{
+			struct{ String* t0; uchar	_pad4[4]; E_XY_coord t1; E_XY_coord t2; }	data;
+		} MOUSE;
+		struct{
+			Array*	data;
+		} TOUCH;
+	} u;
+};
+#define E_ShapeEvent_MOUSE_size 48
+#define E_ShapeEvent_MOUSE_map {0x60,}
+#define E_ShapeEvent_TOUCH_size 12
+#define E_ShapeEvent_TOUCH_map {0x60,}
 struct E_Level
 {
-	E_GrOp	graphics;
+	String*	note;
 };
-#define E_Level_size 8
-#define E_Level_map {0xc0,}
+#define E_Level_size 4
+#define E_Level_map {0x80,}
 struct E_Shape
 {
 	WORD	id;
+	Array*	graph_ops;
+	String*	exec_cb_path;
+	Array*	sub_canvas;
+	Array*	mask_canvas;
+	Array*	parent;
 };
-#define E_Shape_size 4
-#define E_Shape_map {0}
+#define E_Shape_size 24
+#define E_Shape_map {0x7c,}
 void Shape_ArcCCW(void*);
 typedef struct F_Shape_ArcCCW F_Shape_ArcCCW;
 struct F_Shape_ArcCCW
@@ -174,6 +253,15 @@ struct F_Shape_getDrawZ
 	E_Shape*	this;
 	WORD	n;
 };
+void Shape_getExecCbChan(void*);
+typedef struct F_Shape_getExecCbChan F_Shape_getExecCbChan;
+struct F_Shape_getExecCbChan
+{
+	WORD	regs[NREG-1];
+	Channel**	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+};
 void E_getLevelsList(void*);
 typedef struct F_E_getLevelsList F_E_getLevelsList;
 struct F_E_getLevelsList
@@ -181,6 +269,53 @@ struct F_E_getLevelsList
 	WORD	regs[NREG-1];
 	Array**	ret;
 	uchar	temps[12];
+};
+void Shape_getMaskedCanvasItm(void*);
+typedef struct F_Shape_getMaskedCanvasItm F_Shape_getMaskedCanvasItm;
+struct F_Shape_getMaskedCanvasItm
+{
+	WORD	regs[NREG-1];
+	E_Shape**	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+	WORD	i;
+};
+void Shape_getMaskedCanvasLen(void*);
+typedef struct F_Shape_getMaskedCanvasLen F_Shape_getMaskedCanvasLen;
+struct F_Shape_getMaskedCanvasLen
+{
+	WORD	regs[NREG-1];
+	WORD*	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+};
+void Shape_getParent(void*);
+typedef struct F_Shape_getParent F_Shape_getParent;
+struct F_Shape_getParent
+{
+	WORD	regs[NREG-1];
+	E_Shape**	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+};
+void Shape_getSubCanvasItm(void*);
+typedef struct F_Shape_getSubCanvasItm F_Shape_getSubCanvasItm;
+struct F_Shape_getSubCanvasItm
+{
+	WORD	regs[NREG-1];
+	E_Shape**	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+	WORD	i;
+};
+void Shape_getSubCanvasLen(void*);
+typedef struct F_Shape_getSubCanvasLen F_Shape_getSubCanvasLen;
+struct F_Shape_getSubCanvasLen
+{
+	WORD	regs[NREG-1];
+	WORD*	ret;
+	uchar	temps[12];
+	E_Shape*	this;
 };
 void E_increment(void*);
 typedef struct F_E_increment F_E_increment;
@@ -323,6 +458,26 @@ struct F_Shape_setDrawZ
 	E_Shape*	shape;
 	WORD	n;
 };
+void Shape_setExecCbChan(void*);
+typedef struct F_Shape_setExecCbChan F_Shape_setExecCbChan;
+struct F_Shape_setExecCbChan
+{
+	WORD	regs[NREG-1];
+	WORD	noret;
+	uchar	temps[12];
+	E_Shape*	this;
+	Channel*	c;
+};
+void Shape_setExecCbPath(void*);
+typedef struct F_Shape_setExecCbPath F_Shape_setExecCbPath;
+struct F_Shape_setExecCbPath
+{
+	WORD	regs[NREG-1];
+	struct{ String* t0; WORD t1; }*	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+	String*	new_path;
+};
 void Shape_setOffset(void*);
 typedef struct F_Shape_setOffset F_Shape_setOffset;
 struct F_Shape_setOffset
@@ -355,5 +510,23 @@ struct F_E_tst
 	WORD	noret;
 	uchar	temps[12];
 	String*	s;
+};
+void Shape_undoGraph(void*);
+typedef struct F_Shape_undoGraph F_Shape_undoGraph;
+struct F_Shape_undoGraph
+{
+	WORD	regs[NREG-1];
+	WORD	noret;
+	uchar	temps[12];
+	E_Shape*	this;
+};
+void Shape_updGraph(void*);
+typedef struct F_Shape_updGraph F_Shape_updGraph;
+struct F_Shape_updGraph
+{
+	WORD	regs[NREG-1];
+	WORD	noret;
+	uchar	temps[12];
+	E_Shape*	this;
 };
 #define E_PATH "$E"
