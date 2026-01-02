@@ -89,6 +89,7 @@ E_Shape* do_new_shape(E_Shape* o_old);
 
 void add_op_to_shape(E_Shape *shp, int op_type,
 							double p0, double p1, double p2, double p3, double p4, double p5);
+void add_op_text_to_shape(E_Shape *shp, int op_type, char* text, int text_len);
 
 
 graphic_el* set_graph_el_to_pos(graphic_el** parent_el_nest, graphic_el *el, int n, int is_ins);
@@ -102,6 +103,7 @@ void reset_rendered_flag(graphic_el **el);
 
 cairo_surface_t* _draw_svg(char* svg_buf, double *w_out, double *h_out);
 cairo_surface_t* _draw_png(char* png_path, double *w_out, double *h_out);
+cairo_surface_t* _draw_text(graphic_el* el, double *w_out, double *h_out);
 
 
 
@@ -121,6 +123,8 @@ extern Type*	TGraphOp_CURVE_TO;
 extern Type*	TGraphOp_ARC_CW;
 extern Type*	TGraphOp_ARC_CCW;
 extern Type*	TGraphOp_CLOSE_PATH;
+
+extern Type*	TGraphOp_TEXT;
 
 extern Type*	TShapeEvent_MOUSE;
 extern Type*	TShapeEvent_TOUCH;
@@ -169,6 +173,7 @@ enum {
 	SHP_OP_toMASK,
 	SHP_OP_unMASK,
 	SHP_OP_CLOSE_PATH,
+	SHP_OP_TEXT,
 };
 
 
@@ -215,6 +220,7 @@ extern String* s_curveTo;
 extern String* s_arcCW;
 extern String* s_arcCCW;
 extern String* s_closePath;
+extern String* s_text;
 
 
 graphic_el* new_graphic_el(int type, int isAddToFreeList);
@@ -226,6 +232,60 @@ void heap_ref_inc(Heap* ho);
 
 
 void flushscreen();
+
+
+
+
+
+
+enum {
+	TEXT_LINE_NEED_REDRAW = 0,
+	TEXT_LINE_DRAWED,
+
+	TEXT_LINE_BELOW_LINE,
+	TEXT_LINE_ABOVE_LINE,
+	TEXT_LINE_CONTINUE_LINE,
+
+	TEXT_BLOCK_ALIGN_LEFT,
+	TEXT_BLOCK_ALIGN_RIGHT,
+	TEXT_BLOCK_ALIGN_CENTER,
+};
+
+
+typedef struct text_line_sfc_el_t text_line_sfc_el_t;
+struct text_line_sfc_el_t {
+	int n;
+	char* str;
+
+	cairo_surface_t *sfc;
+	cairo_t* cr;
+
+	int w, h;
+
+	text_line_sfc_el_t* next;
+};
+
+
+typedef struct text_line_t text_line_t;
+struct text_line_t {
+	uint flags;
+
+	int n;
+	char *text;
+
+//	cairo_surface_t *sfc;
+//	cairo_t* cr;
+
+	text_line_sfc_el_t* sfc_lst_root;
+
+	uint w_max, h_max;
+
+	int w, h;
+
+	text_line_t *next;
+};
+
+void* text_del_line(void* tl);
 
 
 #endif // _GRAPH_GRAPH_H_

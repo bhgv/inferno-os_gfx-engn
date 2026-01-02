@@ -36,6 +36,9 @@ Type*	TGraphOp_ARC_CCW;
 static uchar	GraphOp_CLOSE_PATH_map[] = E_GraphOp_CLOSE_PATH_map;
 Type*	TGraphOp_CLOSE_PATH;
 
+static uchar	GraphOp_TEXT_map[] = E_GraphOp_TEXT_map;
+Type*	TGraphOp_TEXT;
+
 static uchar	ShapeEvent_MOUSE_map[] = E_ShapeEvent_MOUSE_map;
 Type*	TShapeEvent_MOUSE;
 static uchar	ShapeEvent_TOUCH_map[] = E_ShapeEvent_TOUCH_map;
@@ -54,6 +57,7 @@ String* s_lineTo;
 String* s_curveTo;
 String* s_arcCW;
 String* s_arcCCW;
+String* s_text;
 String* s_closePath;
 
 
@@ -81,7 +85,9 @@ D();
 		TGraphOp_ARC_CW = dtype(freeheap, E_GraphOp_ARC_CW_size, GraphOp_ARC_CW_map, sizeof(GraphOp_ARC_CW_map));
 		TGraphOp_ARC_CCW = dtype(freeheap, E_GraphOp_ARC_CCW_size, GraphOp_ARC_CCW_map, sizeof(GraphOp_ARC_CCW_map));
 		TGraphOp_CLOSE_PATH = dtype(freeheap, E_GraphOp_CLOSE_PATH_size, GraphOp_CLOSE_PATH_map, sizeof(GraphOp_CLOSE_PATH_map));
-//		TGraphOp = dtype(freeheap, E_GraphOp_MOVE_TO_size, GraphOp_map, sizeof(GraphOp_map));
+
+		TGraphOp_TEXT = dtype(freeheap, E_GraphOp_TEXT_size, GraphOp_TEXT_map, sizeof(GraphOp_TEXT_map));
+
 //		TGraphOp = dtype(freeheap, E_GraphOp_MOVE_TO_size, GraphOp_map, sizeof(GraphOp_map));
 
 		TShapeEvent_MOUSE = dtype(freeheap, E_ShapeEvent_MOUSE_size, ShapeEvent_MOUSE_map, sizeof(ShapeEvent_MOUSE_map));
@@ -106,6 +112,8 @@ D();
 		s_closePath = c2string("closePath", strlen("closePath"));
 		poolimmutable(D2H(s_closePath));
 
+		s_text    = c2string("text",    strlen("text"));
+		poolimmutable(D2H(s_text));
 
 		graph_scrn_init();
 
@@ -390,6 +398,52 @@ void E_newPNG(void* par)
 
 	el->flags &= ~GR_EL_WAIT_TO_RENDER;
 	el->flags |=  GR_EL_RENDERED;	
+
+	crRefShapeObj(el->id, f->ret);
+
+	el->shp = *f->ret;
+}
+
+
+
+void E_newText(void* par)
+{
+	F_E_newText *f = par;
+
+	char *str;
+	str = string2c(f->txt);
+
+	graphic_el *el = new_graphic_el(GR_EL_TEXT, 1); 
+
+	el->data = strdup(str);
+
+#if 0
+	el->text_block_flags = 1 << TEXT_BLOCK_ALIGN_CENTER;
+
+	double w, h;
+	el->sfc = _draw_text(el, &w, &h);
+
+	el->w = (double)w;
+	el->h = (double)h;
+
+	el->x_min = 0.;
+	el->y_min = 0.;
+
+	el->x_max = el->w;
+	el->y_max = el->h;
+
+#if 1
+    if (el->sfc == NULL) {
+		free(el->data);
+		free(el);
+
+		return;
+    }
+#endif
+
+	el->flags &= ~GR_EL_WAIT_TO_RENDER;
+	el->flags |=  GR_EL_RENDERED;	
+#endif
 
 	crRefShapeObj(el->id, f->ret);
 
@@ -717,6 +771,245 @@ void Shape_ArcCCW(void* par)
 
 //D();
 	add_op_to_shape(f->this, E_GraphOp_ARC_CCW, f->x, f->y, f->radius, f->angle_from, f->angle_to, 0.);
+
+	reset_rendered_flag(&el);
+	*f->ret = 0;
+}
+
+
+
+#include "graph/utf8.h"
+
+#if 0
+void Shape_Text(void* par)
+{
+	F_Shape_Text *f = par;
+	
+	if (f->this == H || f->this == nil)
+		return;
+
+	graphic_el **el_nest = find_graph_el_by_id(f->this->id, NULL);
+	if (!el_nest) {
+		*f->ret = -1;
+		return;
+	}
+	graphic_el *el = *el_nest;
+	if (!el) {
+		*f->ret = -1;
+		return;
+	}
+	if ((el->type & 0xff) != GR_EL_SHAPE) {
+		*f->ret = -1;
+		return;
+	}
+
+	char* txt     = string2c(f->txt);
+	int   txt_len = utf8size(txt);
+
+	int st = el->data_len;
+	el->data_len += 1 + txt_len;
+
+	el->data = realloc(el->data, el->data_len);
+
+	el->data[st++] = SHP_OP_TEXT;
+
+	memcpy(&el->data[st], txt, txt_len);
+
+//D();
+	add_op_text_to_shape(f->this, E_GraphOp_TEXT, txt, txt_len);
+
+	reset_rendered_flag(&el);
+	*f->ret = 0;
+}
+#endif
+
+
+void Shape_textString(void* par)
+{
+	F_Shape_textString *f = par;
+	
+	if (f->this == H || f->this == nil)
+		return;
+
+	graphic_el **el_nest = find_graph_el_by_id(f->this->id, NULL);
+	if (!el_nest) {
+		*f->ret = -1;
+		return;
+	}
+	graphic_el *el = *el_nest;
+	if (!el) {
+		*f->ret = -1;
+		return;
+	}
+	if ((el->type & 0xff) != GR_EL_TEXT) {
+		*f->ret = -1;
+		return;
+	}
+
+	char* txt     = string2c(f->txt);
+	//int   txt_len = utf8size(txt);
+
+	free(el->data);
+	el->data = strdup(txt);
+
+	text_line_t* tl = el->text_lines;
+	while (tl) {
+		tl = text_del_line(tl);
+	}
+	el->text_lines = tl;
+
+	reset_rendered_flag(&el);
+	*f->ret = 0;
+}
+
+
+void Shape_textFont(void* par)
+{
+	F_Shape_textFont *f = par;
+	
+	if (f->this == H || f->this == nil)
+		return;
+
+	graphic_el **el_nest = find_graph_el_by_id(f->this->id, NULL);
+	if (!el_nest) {
+		*f->ret = -1;
+		return;
+	}
+	graphic_el *el = *el_nest;
+	if (!el) {
+		*f->ret = -1;
+		return;
+	}
+	if ((el->type & 0xff) != GR_EL_TEXT) {
+		*f->ret = -1;
+		return;
+	}
+
+	char* font_path = string2c(f->path);
+	//int   txt_len = utf8size(txt);
+
+	if (el->text_font_path)
+		free(el->text_font_path);
+	el->text_font_path = strdup(font_path);
+
+	text_line_t* tl = el->text_lines;
+	while (tl) {
+		tl = text_del_line(tl);
+	}
+	el->text_lines = tl;
+
+	reset_rendered_flag(&el);
+	*f->ret = 0;
+}
+
+
+void Shape_textFontSize(void* par)
+{
+	F_Shape_textFontSize *f = par;
+	
+	if (f->this == H || f->this == nil)
+		return;
+
+	graphic_el **el_nest = find_graph_el_by_id(f->this->id, NULL);
+	if (!el_nest) {
+		*f->ret = -1;
+		return;
+	}
+	graphic_el *el = *el_nest;
+	if (!el) {
+		*f->ret = -1;
+		return;
+	}
+	if ((el->type & 0xff) != GR_EL_TEXT) {
+		*f->ret = -1;
+		return;
+	}
+
+	uint size = f->size;
+
+	el->text_font_size = size;
+
+	text_line_t* tl = el->text_lines;
+	while (tl) {
+		tl = text_del_line(tl);
+	}
+	el->text_lines = tl;
+
+	reset_rendered_flag(&el);
+	*f->ret = 0;
+}
+
+
+void Shape_textAlign(void* par)
+{
+	F_Shape_textAlign *f = par;
+	
+	if (f->this == H || f->this == nil)
+		return;
+
+	graphic_el **el_nest = find_graph_el_by_id(f->this->id, NULL);
+	if (!el_nest) {
+		*f->ret = -1;
+		return;
+	}
+	graphic_el *el = *el_nest;
+	if (!el) {
+		*f->ret = -1;
+		return;
+	}
+	if ((el->type & 0xff) != GR_EL_TEXT) {
+		*f->ret = -1;
+		return;
+	}
+
+	char* al     = string2c(f->align);
+	//int   txt_len = utf8size(txt);
+
+	if (strcmp(al, "left") == 0) {
+		el->text_block_flags &= ~(TEXT_BLOCK_ALIGN_LEFT | TEXT_BLOCK_ALIGN_CENTER | TEXT_BLOCK_ALIGN_RIGHT);
+		el->text_block_flags |=   TEXT_BLOCK_ALIGN_LEFT;
+	} else
+	if (strcmp(al, "center") == 0) {
+		el->text_block_flags &= ~(TEXT_BLOCK_ALIGN_LEFT | TEXT_BLOCK_ALIGN_CENTER | TEXT_BLOCK_ALIGN_RIGHT);
+		el->text_block_flags |=   TEXT_BLOCK_ALIGN_CENTER;
+	} else
+	if (strcmp(al, "right") == 0) {
+		el->text_block_flags &= ~(TEXT_BLOCK_ALIGN_LEFT | TEXT_BLOCK_ALIGN_CENTER | TEXT_BLOCK_ALIGN_RIGHT);
+		el->text_block_flags |=   TEXT_BLOCK_ALIGN_RIGHT;
+	}
+
+	reset_rendered_flag(&el);
+	*f->ret = 0;
+}
+
+
+void Shape_textViewPort(void* par)
+{
+	F_Shape_textViewPort *f = par;
+	
+	if (f->this == H || f->this == nil)
+		return;
+
+	graphic_el **el_nest = find_graph_el_by_id(f->this->id, NULL);
+	if (!el_nest) {
+		*f->ret = -1;
+		return;
+	}
+	graphic_el *el = *el_nest;
+	if (!el) {
+		*f->ret = -1;
+		return;
+	}
+	if ((el->type & 0xff) != GR_EL_TEXT) {
+		*f->ret = -1;
+		return;
+	}
+
+	int w = f->w;
+	int h = f->h;
+
+	el->text_vp_w = w;
+	el->text_vp_h = h;
 
 	reset_rendered_flag(&el);
 	*f->ret = 0;
@@ -1296,7 +1589,7 @@ if (parent_el_nest && *parent_el_nest) {
 	) {
 		*el_nest = el->next;
 
-D();
+//D();
 		graphic_el* old_shape = set_graph_el_to_pos(parent_el_nest, el, n, 0);
 		if (old_shape) {
 			f->ret->t0 = old_shape->id; //el2->id;

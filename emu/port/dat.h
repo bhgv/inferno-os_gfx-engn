@@ -401,6 +401,7 @@ enum {                           //{}
 	GR_EL_PNG,
 	GR_EL_SHAPE,
 	GR_EL_CANVAS,
+	GR_EL_TEXT,
 };
 #define GR_EL_MASK (1 << 15)
 
@@ -440,6 +441,13 @@ struct graphic_el {                   //{}
 
 	char *data;
 	int   data_len;
+
+	uint  text_block_flags;
+	void *text_lines;
+	char *text_style_name;
+	char *text_font_path;
+	uint  text_font_size;
+	uint  text_vp_w, text_vp_h;
 
 	void* shp;
 	

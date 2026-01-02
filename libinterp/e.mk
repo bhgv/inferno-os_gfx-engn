@@ -6,6 +6,7 @@ OFILES=\
 	channel_wrk.$O\
 	aux_svg.$O\
 	aux_png.$O\
+	aux_text.$O\
 	win_dep.$O\
 	e.$O\
 
@@ -46,6 +47,9 @@ aux_svg.$O:	graph/aux_svg.c
 
 aux_png.$O:	graph/aux_png.c
 	$CC $CFLAGS -o $target graph/aux_png.c
+
+aux_text.$O:	graph/aux_text.c
+	$CC $CFLAGS -I$ROOT/libgraph/cairo/src -o $target graph/aux_text.c
 
 win_dep.$O:	graph/win_dep.c graph/graph.h
 	$CC $CFLAGS -o $target graph/win_dep.c

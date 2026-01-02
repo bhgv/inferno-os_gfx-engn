@@ -23,12 +23,49 @@
 
 
 
+typedef struct {
+    char *stylename;
+    char *fontname;
+    char *fontname_b;
+    char *fontname_i;
+    char *fontname_bi;
+    float  fontsize;
+    uint32_t color1;
+    uint32_t color2;
+    uint32_t border_color;
+    uint32_t shadow_color;
+    int  bold;
+    int  italic;
+    int  underline;
+    int  strikeout;
+    int  fontscalex;
+    int  fontscaley;
+    int  spacing;
+    float  angle;
+
+    int borderstyle;
+    float outline;
+    float shadow;
+    int alignment;
+    float marginleft;
+    float marginright;
+    float marginvertical;
+    char  *encoding;
+    float alphaLevel;
+} style_t;
+
+
+
+
 #if 1
 cairo_surface_t *sfc_main_screen = NULL;
 uint             main_screen_flags = 0;
 
 
 static cairo_surface_t *render_canvas(graphic_el* el);
+
+
+int _text_with_draw_cb(cairo_t* tcr, char *text, style_t* stl);
 
 
 static void
@@ -66,6 +103,7 @@ render_shape(graphic_el* el)
 //	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
 	int isMask = 0;
+	int isPaint = 1;
 
 //DD("data: %p, len: %d", el->data, el->data_len);
 
@@ -183,6 +221,25 @@ render_shape(graphic_el* el)
 			case SHP_OP_CLOSE_PATH:
 //D();
 				cairo_close_path (cr);
+				break;
+
+			case SHP_OP_TEXT:
+				{
+					float x, y, r, a_fr, a_to;
+//D();
+
+					char* txt = &(el->data[i]);
+					for (; el->data[i] != '\0'; i++);
+					
+//					style_t* stl = new_style();
+//cairo_translate(cr, -20., -25.);
+//					_text_with_draw_cb(cr, txt, stl);
+//					free(stl);
+
+					isPaint = 0;
+
+					//cairo_arc_negative(cr, x, y, r, a_fr, a_to);
+				}
 				break;
 
 			case SHP_OP_toMASK:
@@ -328,7 +385,7 @@ D();
 //		cairo_stroke         (cr);
 //D();
 
-	} else {
+	} else if (isPaint) {
 //D();
 		cairo_set_source_rgba(cr, el->fill_r, el->fill_g, el->fill_b, el->fill_a);
 		cairo_fill_preserve  (cr);
@@ -446,6 +503,26 @@ static void thread_draw_gr_stack_el(void* par)
 
 		el->flags &= ~GR_EL_WAIT_TO_RENDER;
 		el->flags |=  GR_EL_RENDERED;
+//D();
+		break;
+
+	case GR_EL_TEXT:
+//D();
+		double w, h;
+		el->sfc = _draw_text(el, &w, &h);
+
+		el->w = (double)w;
+		el->h = (double)h;
+
+		el->x_min = 0.;
+		el->y_min = 0.;
+
+		el->x_max = el->w;
+		el->y_max = el->h;
+
+		el->flags &= ~GR_EL_WAIT_TO_RENDER;
+		el->flags |=  GR_EL_RENDERED;
+//D();
 		break;
 
 	case GR_EL_CANVAS:
@@ -485,7 +562,7 @@ render_gr_stack_to_surface(cairo_surface_t *sfc, cairo_t *cr, graphic_el* gr_sta
 //D();
 		if (el->flags & GR_EL_WAIT_TO_RENDER) {
 //D();
-			kproc("", thread_draw_gr_stack_el, (void*)el, 0);
+			kproc("", thread_draw_gr_stack_el, (void*)el, KPDUPPG | KPDUPFDG | KPDUPENVG);
 		}
 	}
 
@@ -520,6 +597,10 @@ D();
 
 //D();
 		if (el->flags & GR_EL_RENDERED && el->sfc != NULL) {
+
+			if ((el->type & 0xff) == GR_EL_TEXT) {
+				DD("(el->type & 0xff): %d, el->sfc: %p", (el->type & 0xff), el->sfc);
+			}
 //D();
 //			double whlf = el->w / 2.; ///*el->x_min +*/ (double)cairo_image_surface_get_width(el->sfc) / 2.;
 //			double hhlf = el->h / 2.; ///*el->y_min +*/ (double)cairo_image_surface_get_height(el->sfc) / 2.;
@@ -615,10 +696,10 @@ void reset_rendered_flag(graphic_el **el)
 		(*el)->flags &= ~GR_EL_RENDERED;
 		(*el)->flags |=  GR_EL_WAIT_TO_RENDER;
 
-		graphic_el *e = (*el)->root;
-		for (; e != NULL; e = e->root) {
-			e->flags &= ~GR_EL_RENDERED;
-			e->flags |=  GR_EL_WAIT_TO_RENDER;
+		graphic_el **e = (*el)->root;
+		for (; e && *e; e = (*e)->root) {
+			(*e)->flags &= ~GR_EL_RENDERED;
+			(*e)->flags |=  GR_EL_WAIT_TO_RENDER;
 		}
 	}
 

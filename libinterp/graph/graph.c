@@ -90,6 +90,15 @@ static graphic_el* del_graphic_el(graphic_el *el)
 		free(el->data);
 	}
 
+	void* tl = el->text_lines;
+	while (tl) {
+		tl = text_del_line(tl);
+	}
+	if (el->text_style_name)
+		free(el->text_style_name);
+
+	destroy(el->exec_mod_chan);
+
 	//if (el->svg)
 	//	free(el->svg);
 
@@ -193,9 +202,14 @@ graphic_el* set_graph_el_to_pos(graphic_el** parent_el_nest, graphic_el *el, int
 	if (el == NULL || n < 0)
 		return NULL;
 
-//D();
+
+DD("parent_el_nest: %p", parent_el_nest);
+if (parent_el_nest)
+	DD("*parent_el_nest: %p", *parent_el_nest);
+
+
 	graphic_el **el_nest;
-	graphic_el  *parent;
+	graphic_el **parent;
 
 	if (!parent_el_nest || !*parent_el_nest) {
 		Proc *p = getup();
@@ -205,11 +219,11 @@ graphic_el* set_graph_el_to_pos(graphic_el** parent_el_nest, graphic_el *el, int
 	} else if (((*parent_el_nest)->type & 0xff) == GR_EL_CANVAS) {
 //D();
 		el_nest = &((*parent_el_nest)->canvas);
-		parent  = *parent_el_nest;
+		parent  = parent_el_nest;
 	} else {
 //D();
 		el_nest = &((*parent_el_nest)->masked);
-		parent  = *parent_el_nest;
+		parent  = parent_el_nest;
 	}
 
 	graphic_el *el2 = *el_nest;
@@ -347,11 +361,16 @@ graphic_el* new_graphic_el(int type, int isAddToFreeList)
 
 	el->line_width = 1.;
 
+	el->masked = NULL;
+	el->canvas = NULL;
+
 //	el->flags &= ~GR_EL_WAIT_TO_RENDER;
 //	el->flags |=  GR_EL_RENDERED;	
 	el->flags = GR_EL_WAIT_TO_RENDER;
 
 	el->shp = NULL;
+
+	el->text_lines = NULL;
 
 	Proc *p 	 = getup();
 
@@ -784,6 +803,7 @@ void add_op_to_shape(E_Shape *shp, int op_type,
 		|| op_type == E_GraphOp_ARC_CW
 		|| op_type == E_GraphOp_ARC_CCW
 		|| op_type == E_GraphOp_CLOSE_PATH
+//		|| op_type == E_GraphOp_TEXT
 	))
 		return;
 
@@ -947,6 +967,18 @@ DD("Heap after: %p (%p)", h, D2H(shp));
 
 			s = s_closePath; //c2string("closePath", strlen("closePath"));
 			break;
+/*
+		case E_GraphOp_TEXT:
+			ho = heap(TGraphOp_TEXT);
+			gop = H2D(E_GraphOp*, ho);
+//			gop = H2D(E_GraphOp*, heap(TGraphOp_CLOSE_PATH));
+			gop->pick = E_GraphOp_TEXT;
+
+			gop->u.TEXT.text = c2string((char*)p0, (int)p1);
+
+			s = s_text; //c2string("closePath", strlen("closePath"));
+			break;
+*/
 	};
 
 	ho->ref++;
@@ -973,6 +1005,117 @@ DD("Heap after: %p (%p)", h, D2H(shp));
 
 
 }
+
+
+
+void add_op_text_to_shape(E_Shape *shp, int op_type, char* text, int text_len)
+{
+	Heap *ho, *hs;
+
+	if (!(
+		op_type == E_GraphOp_TEXT
+	))
+		return;
+
+	Array* ar_ops = shp->graph_ops;
+
+#if 1
+	void** el_list;
+
+#if 1
+	ar_ops = array_resize(ar_ops, ar_ops->len + 1);
+	shp->graph_ops = ar_ops;
+
+	el_list = ar_ops->data;
+#else
+								int osize = hmsize(D2H(ar_ops));
+								int sz = sizeof(Heap) + sizeof(Array) + (Tptr.size * (ar_ops->len + 1));
+							
+								if (osize >= sz) {
+									ar_ops->len++;
+									el_list = (void**)ar_ops->data;
+								} else {
+									ho = heaparray(&Tptr, ar_ops->len + 1);
+									ho->ref++;
+									Setmark(ho);
+							
+									Array* ar_new = H2D(Array*, ho);
+							DD("!!:.: ar_new: %p, len: %d (%d)", ar_new, ar_new->len, sizeof(void*));
+							
+									void** el_old_list = (void**)ar_ops->data;
+										   el_list	   = (void**)ar_new->data;
+							
+									for (int i = 0; i < ar_ops->len; i++) {
+										el_list[i] = el_old_list[i];
+									}
+							
+									shp->graph_ops = ar_new;
+							//	el_list = (void**)ar_new->data;
+							
+									destroy(ar_ops);
+							
+									ar_ops = ar_new;
+								}
+#endif
+
+#else
+								Heap* h = D2H(ar_ops);
+							
+								ar_ops->len++;
+							
+								ulong sz = 
+							//		(hmsize(h) + Tptr.size + 7) & ~7L;
+									sizeof(Heap) + sizeof(Array) + (Tptr.size * (ar_ops->len));
+							
+							DD("Heap pre: %p (%p)", h, D2H(shp));
+								h = (Heap*)poolrealloc(heapmem, h, sz);
+							DD("Heap after: %p (%p)", h, D2H(shp));
+							
+							//#undef DD(...)
+							//#define DD(...) 
+							
+								if(heapmonitor != nil)
+									heapmonitor(0, h, sz);
+							
+								ar_ops = H2D(Array*, h);
+								shp->graph_ops = ar_ops;
+							
+								void** el_list = (void**)ar_ops->data;
+							
+								void* p = (void*)el_list[ar_ops->len - 1];
+							//	for (int i = 0; i < ar_ops->t->size; i++, p++) {
+							//		initmem(ar_ops->t, p);
+							//	}
+#endif
+
+	String* s = NULL;
+
+	E_GraphOp* gop = (E_GraphOp*)0xDEADF15;
+	switch (op_type) {
+		case E_GraphOp_TEXT:
+			ho = heap(TGraphOp_TEXT);
+			gop = H2D(E_GraphOp*, ho);
+//			gop = H2D(E_GraphOp*, heap(TGraphOp_CLOSE_PATH));
+			gop->pick = E_GraphOp_TEXT;
+
+			gop->u.TEXT.text = c2string(text, text_len);
+
+			s = s_text; //c2string("closePath", strlen("closePath"));
+			break;
+	};
+
+	ho->ref++;
+	Setmark(ho);
+
+	//	hs = D2H(s);
+	//	hs->ref++;
+	//	Setmark(hs);
+
+	gop->op = s;
+							
+	el_list[ar_ops->len - 1] = (void*)gop;
+}
+
 
 
 
@@ -1240,7 +1383,7 @@ static graphic_el* findGraphElsList(graphic_el* el, double x, double y)
 		if (x < el->x || y < el->y)
 			continue;
 
-		if (x > (el->x + el->w) || y > (el->y + el->w))
+		if (x > (el->x + el->w) || y > (el->y + el->h))
 			continue;
 
 		if (el->exec_mod_chan != NULL && el->exec_mod_chan != H)

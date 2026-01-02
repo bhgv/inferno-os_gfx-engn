@@ -203,12 +203,12 @@ WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 				}
 
 				if (el) {
-					graphic_el* el_par = el->root;
+					graphic_el** el_par = el->root;
 					double dx = el->x, dy = el->y;
 
-					for (; el_par; el_par = el_par->root) {
-						dx += el_par->x;
-						dy += el_par->y;
+					for (; el_par && *el_par; el_par = (*el_par)->root) {
+						dx += (*el_par)->x;
+						dy += (*el_par)->y;
 					}
 
 					csend_touch_evt_(el, tp);
@@ -296,12 +296,12 @@ WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		graphic_el* el = findGraphElByXY((double)m.x, (double)m.y);
 
 		if (el) {
-			graphic_el* el_par = el->root;
+			graphic_el** el_par = el->root;
 			double dx = el->x, dy = el->y;
 
-			for (; el_par; el_par = el_par->root) {
-				dx += el_par->x;
-				dy += el_par->y;
+			for (; el_par && *el_par; el_par = (*el_par)->root) {
+				dx += (*el_par)->x;
+				dy += (*el_par)->y;
 			}
 
 //			printfToGraphEl(el, ":MOUSE: XY: l:(%f, %f) g:(%d, %d) op: %s (0x%X)", 
@@ -449,10 +449,19 @@ WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		mmi->ptMaxTrackSize.x = maxxsize;
 		mmi->ptMaxTrackSize.y = maxysize;
 		break;
+	case WM_ACTIVATE:
+		int fActive = LOWORD(wparam);
+		if (fActive == WA_INACTIVE)
+			UnregisterTouchWindow(hwnd);
+		else {
+			SetFocus(hwnd);
+			RegisterTouchWindow(hwnd, 0);
+		}
+		return DefWindowProcA(hwnd, msg, wparam, lparam);
+	case WM_SETFOCUS:
+	case WM_CREATE:
 	case WM_SYSCHAR:
 	case WM_COMMAND:
-	case WM_CREATE:
-	case WM_SETFOCUS:
 	case WM_DEVMODECHANGE:
 	case WM_WININICHANGE:
 	case WM_INITMENU:
@@ -565,7 +574,7 @@ winproc(LPVOID x)
 		ExitThread(0);
 	}
 
-	RegisterTouchWindow(window, 0);
+//	RegisterTouchWindow(window, 0);
 
 	SetForegroundWindow(window);
 	ShowWindow(window, cmdshow);

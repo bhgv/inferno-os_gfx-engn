@@ -24,6 +24,7 @@ E: module
 			ARC_CW   => coord: Arc_coord;
 			ARC_CCW  => coord: Arc_coord;
 			CLOSE_PATH => coord: int;
+			TEXT	 => text: string;
 		}
 	};
 
@@ -90,6 +91,15 @@ E: module
 
 		ClosePath:	fn(this: self ref Shape)                     : int;
 
+#		Text:		fn(this: self ref Shape, txt: string)    : int;
+
+		
+		textString:	fn(this: self ref Shape, txt: string)    : int;
+		textAlign:	fn(this: self ref Shape, align: string)  : int;
+		textFont:	fn(this: self ref Shape, path: string)   : int;
+		textFontSize: fn(this: self ref Shape, size: int)    : int;
+		textViewPort: fn(this: self ref Shape, w: int, h: int): int;
+
 		setAsMask:  fn(this: self ref Shape, is_mask: int)       : int;
 
 		setAngle:   fn(this: self ref Shape, angle: real)        : int;
@@ -128,6 +138,7 @@ E: module
 	newSVG:      fn(svg: string)      : ref Shape;
 	newPNG:      fn(png_file_name: string) : ref Shape;
 	newShape:    fn()                 : ref Shape;
+	newText:     fn(txt: string)      : ref Shape;
 
 	newFromChunk: fn(chunk: array of byte) : ref Shape;
 

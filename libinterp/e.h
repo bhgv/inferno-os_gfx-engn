@@ -26,6 +26,7 @@ struct E_Arc_coord
 #define E_GraphOp_ARC_CW 3
 #define E_GraphOp_ARC_CCW 4
 #define E_GraphOp_CLOSE_PATH 5
+#define E_GraphOp_TEXT 6
 struct E_GraphOp
 {
 	int	pick;
@@ -49,6 +50,9 @@ struct E_GraphOp
 		struct{
 			WORD	coord;
 		} CLOSE_PATH;
+		struct{
+			String*	text;
+		} TEXT;
 	} u;
 };
 #define E_GraphOp_MOVE_TO_size 24
@@ -63,6 +67,8 @@ struct E_GraphOp
 #define E_GraphOp_ARC_CCW_map {0x40,}
 #define E_GraphOp_CLOSE_PATH_size 12
 #define E_GraphOp_CLOSE_PATH_map {0x40,}
+#define E_GraphOp_TEXT_size 12
+#define E_GraphOp_TEXT_map {0x60,}
 #define E_ShapeEvent_MOUSE 0
 #define E_ShapeEvent_TOUCH 1
 struct E_ShapeEvent
@@ -399,6 +405,15 @@ struct F_E_newShape
 	E_Shape**	ret;
 	uchar	temps[12];
 };
+void E_newText(void*);
+typedef struct F_E_newText F_E_newText;
+struct F_E_newText
+{
+	WORD	regs[NREG-1];
+	E_Shape**	ret;
+	uchar	temps[12];
+	String*	txt;
+};
 void Shape_rmDrawZ(void*);
 typedef struct F_Shape_rmDrawZ F_Shape_rmDrawZ;
 struct F_Shape_rmDrawZ
@@ -501,6 +516,57 @@ struct F_Shape_setScale
 	uchar	_pad36[4];
 	REAL	sx;
 	REAL	sy;
+};
+void Shape_textAlign(void*);
+typedef struct F_Shape_textAlign F_Shape_textAlign;
+struct F_Shape_textAlign
+{
+	WORD	regs[NREG-1];
+	WORD*	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+	String*	align;
+};
+void Shape_textFont(void*);
+typedef struct F_Shape_textFont F_Shape_textFont;
+struct F_Shape_textFont
+{
+	WORD	regs[NREG-1];
+	WORD*	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+	String*	path;
+};
+void Shape_textFontSize(void*);
+typedef struct F_Shape_textFontSize F_Shape_textFontSize;
+struct F_Shape_textFontSize
+{
+	WORD	regs[NREG-1];
+	WORD*	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+	WORD	size;
+};
+void Shape_textString(void*);
+typedef struct F_Shape_textString F_Shape_textString;
+struct F_Shape_textString
+{
+	WORD	regs[NREG-1];
+	WORD*	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+	String*	txt;
+};
+void Shape_textViewPort(void*);
+typedef struct F_Shape_textViewPort F_Shape_textViewPort;
+struct F_Shape_textViewPort
+{
+	WORD	regs[NREG-1];
+	WORD*	ret;
+	uchar	temps[12];
+	E_Shape*	this;
+	WORD	w;
+	WORD	h;
 };
 void E_tst(void*);
 typedef struct F_E_tst F_E_tst;
