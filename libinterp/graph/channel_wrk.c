@@ -305,7 +305,8 @@ csend_touch_evt_(graphic_el* el, E_XY_coord* arevt)
 
 	shp = shape_by_graphic_el(el);
 
-	heap_ref_inc(D2H(arevt));
+	/* arevt is borrowed native coordinate storage, not a GC allocation.
+	 * The new array owns its copied scalar coordinates; no retain is needed. */
 
 	ev = H2D(E_ShapeEvent*, heap(TShapeEvent_TOUCH));
 

@@ -2160,18 +2160,15 @@ void E_destroyObj(void* par)
 
 
 
-void E_getLevelsList(void* par)
+/* This legacy export has no typed list conversion yet. Never forge an Array
+ * descriptor over a native linked list or dereference an uninitialized return.
+ * frame is borrowed and intentionally untouched; report the unsupported API to Dis. */
+void E_getLevelsList(void *frame)
 {
-	struct F_E_getLevelsList *p = par;
-	Proc *prc = getup();
-
-	Array *lvls = *p->ret;
-
-print("lev lst ar: %p, len: %d\n", lvls->data, lvls->len);
-
-	lvls->data = prc->groot;
-	lvls->len  = prc->groot_len;
+    (void)frame;
+    error("E.getLevelsList is not implemented");
 }
+
 
 
 
